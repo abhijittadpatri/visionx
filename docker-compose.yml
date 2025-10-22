@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    container_name: visionx-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: visionx
+      POSTGRES_PASSWORD: visionx
+      POSTGRES_DB: visionx
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U visionx -d visionx"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  dbdata:
