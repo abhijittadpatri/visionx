@@ -6,6 +6,8 @@ import { errorHandler } from "./middleware/error";
 import admin from "./routes/admin";
 import patients from "./routes/patients";
 import prescriptions from "./routes/prescriptions";
+import products from "./routes/products";
+import orders from "./routes/orders";
 
 export function createApp() {
   const app = express();
@@ -17,6 +19,8 @@ export function createApp() {
   app.use("/admin", admin);
   app.use("/patients", patients);
   app.use("/prescriptions", prescriptions);
+  app.use("/products", products);
+  app.use("/orders", orders);
   
   app.use(errorHandler);
   return app;
