@@ -5,6 +5,7 @@ import auth from "./routes/auth";
 import { errorHandler } from "./middleware/error";
 import admin from "./routes/admin";
 import patients from "./routes/patients";
+import prescriptions from "./routes/prescriptions";
 
 export function createApp() {
   const app = express();
@@ -15,7 +16,8 @@ export function createApp() {
   app.use("/auth", auth);
   app.use("/admin", admin);
   app.use("/patients", patients);
-
+  app.use("/prescriptions", prescriptions);
+  
   app.use(errorHandler);
   return app;
 }
