@@ -47,3 +47,115 @@ model UserTenant {
 
   @@unique([userId, tenantId])
 }
+
+model Patient {
+  id          String    @id @default(cuid())
+  tenantId    String
+  firstName   String
+  lastName    String
+  email       String?   @db.Citext
+  phone       String?
+  dob         DateTime?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  prescriptions Prescription[]
+  orders      Order[]
+
+  @@index([tenantId])
+  @@index([tenantId, lastName])
+}
+
+model Prescription {
+  id            String   @id @default(cuid())
+  tenantId      String
+  patientId     String
+  sphereLeft    Float?
+  sphereRight   Float?
+  cylinderLeft  Float?
+  cylinderRight Float?
+  axisLeft      Int?
+  axisRight     Int?
+  addLeft       Float?
+  addRight      Float?
+  pd            Float?   // pupillary distance
+  issuedAt      DateTime @default(now())
+  expiresAt     DateTime?
+  notes         String?
+
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  patient       Patient  @relation(fields: [patientId], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, patientId])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  tenantId    String
+  sku         String
+  name        String
+  category    ProductCategory
+  priceCents  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  orderItems  OrderItem[]
+
+  @@unique([tenantId, sku])
+  @@index([tenantId, category])
+}
+
+enum ProductCategory {
+  FRAME
+  LENS
+  ACCESSORY
+  SERVICE
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  tenantId      String
+  patientId     String
+  prescriptionId String?
+  status        OrderStatus @default(PENDING)
+  totalCents    Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  patient       Patient     @relation(fields: [patientId], references: [id])
+  prescription  Prescription? @relation(fields: [prescriptionId], references: [id])
+  items         OrderItem[]
+
+  @@index([tenantId])
+  @@index([tenantId, patientId])
+  @@index([tenantId, status])
+}
+
+model OrderItem {
+  id         String  @id @default(cuid())
+  tenantId   String
+  orderId    String
+  productId  String
+  quantity   Int     @default(1)
+  priceCents Int     // snapshot of price at purchase
+
+  tenant     Tenant  @relation(fields: [tenantId], references: [id])
+  order      Order   @relation(fields: [orderId], references: [id])
+  product    Product @relation(fields: [productId], references: [id])
+
+  @@index([tenantId, orderId])
+  @@index([tenantId, productId])
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  READY
+  COMPLETED
+  CANCELLED
+}
