@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import api, { setAuthToken } from "../api/client";
 
 type JwtPayload = { sub: string; ten: string; rol: string; exp?: number };
